@@ -1,46 +1,32 @@
 
-var http = require('http');
-var fs = require('fs');
-var url = require('url');
-var path = require('path');
-const io = require('socket.io')(8080);
-
-var server = http.createServer(function(req, res) {
-    var urlObj = url.parse(req.url, true, false);
-    var filePath = '.' + urlObj.pathname;
-    if (filePath == './') {
-        filePath = './index.html';
-    }
-    var extname = path.extname(filePath);
-    var contentType = mime.lookup(extname);
-    path.exists(filePath, function(exists) {
-        if (exists) {
-            res.writeHead(200, {
-                'Content-Type': contentType
-            });
-            var stream = fs.createReadStream
-            (filePath).pipe(res);
-        } else {
-            res.writeHead(404);
-            res.end();
-        }
-    });
-});
-
-// rodando o servidor na porta 8080
-server.listen(8080);
-// criando um socket para o servidor
-var socket = io.listen(server);
-socket.on('connection', function(client) {
-    console.log('Client connected...');
-    client.on('join', function(data) {
-        console.log(data);
-    });
-    client.on('messages', function(data) {
-        console.log(data);
-        client.broadcast.emit("messages", data);
-    });
-});
+// button id = click
 
 // Path: index.html
-// rodar comando: node server.js
+
+// Se o botão for clicado, todos os usuários conectados ao servidor deverão receber o window.alert("clicou");
+
+var express = require('express');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+app.use(express.static(__dirname + '/public'));
+
+app.get('/', function(req, res){
+    res.sendFile(__dirname + '/public/index.html');
+    }
+);
+
+io.on('connection', function(socket){
+    console.log('a user connected');
+    socket.on('chat message', function(msg){
+        io.emit('chat message', msg);
+    });
+});
+
+http.listen(3000, function(){
+    console.log('listening on *:3000');
+}
+);
+
+// rodar o servidor com node server.js
