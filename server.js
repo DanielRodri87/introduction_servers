@@ -1,11 +1,9 @@
-// criar um servidor local, que quando um usuário clicar no botão click, todos os outros aparelhos conectados na mesma rede, irão receber uma mensagem de alerta.
 
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
 var path = require('path');
-var io = require('socket.io');
-// criar um servidor local, que quando um usuário clicar no botão click, todos os outros aparelhos conectados na mesma rede, irão receber uma mensagem de alerta.
+const io = require('socket.io')(8080);
 
 var server = http.createServer(function(req, res) {
     var urlObj = url.parse(req.url, true, false);
@@ -29,8 +27,8 @@ var server = http.createServer(function(req, res) {
     });
 });
 
-// rodando o servidor na porta 3000
-server.listen(3000);
+// rodando o servidor na porta 8080
+server.listen(8080);
 // criando um socket para o servidor
 var socket = io.listen(server);
 socket.on('connection', function(client) {
